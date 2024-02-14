@@ -366,7 +366,10 @@ class _PdfViewerState extends State<PdfViewer>
             await _goToPage(
                 pageNumber: initialPageNumber, duration: Duration.zero);
 
-            if (mounted && _document != null && _controller != null) {
+            if (mounted &&
+                _document != null &&
+                _controller != null &&
+                _controller!.isReady) {
               widget.params.onViewerReady?.call(_document!, _controller!);
             }
           }
@@ -1287,66 +1290,66 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     __state = state;
   }
 
-  _PdfViewerState get _state {
-    return __state!;
+  _PdfViewerState? get _state {
+    return __state;
   }
 
   /// Determine whether the document/pages are ready or not.
   bool get isReady => __state?._document?.pages != null;
 
   /// Document layout's size.
-  Size get documentSize => _state._layout!.documentSize;
+  Size? get documentSize => _state?._layout?.documentSize;
 
   /// View port size (The widget's client area's size)
-  Size get viewSize => _state._viewSize!;
+  Size? get viewSize => _state?._viewSize!;
 
   /// The zoom ratio that fits the page width to the view port.
-  double get coverScale => _state._coverScale!;
+  double? get coverScale => _state?._coverScale;
 
   /// The zoom ratio that fits whole the page to the view port.
-  double? get alternativeFitScale => _state._alternativeFitScale;
+  double? get alternativeFitScale => _state?._alternativeFitScale;
 
   /// The minimum zoom ratio allowed.
-  double get minScale => _state.minScale;
+  double? get minScale => _state?.minScale;
 
   /// The area of the document layout which is visible on the view port.
-  Rect get visibleRect => _state._visibleRect;
+  Rect? get visibleRect => _state?._visibleRect;
 
   /// Get the associated document.
-  PdfDocument get document => _state._document!;
+  PdfDocument? get document => _state?._document!;
 
   /// Get the associated pages.
-  List<PdfPage> get pages => _state._document!.pages;
+  List<PdfPage> get pages => _state!._document!.pages;
 
   /// The current page number if available.
-  int? get pageNumber => _state._pageNumber;
+  int? get pageNumber => _state?._pageNumber;
 
   /// The document reference associated to the [PdfViewer].
-  PdfDocumentRef get documentRef => _state.widget.documentRef;
+  PdfDocumentRef? get documentRef => _state?.widget.documentRef;
 
   @override
-  Matrix4 get value => _state._txController.value;
+  Matrix4 get value => _state?._txController.value ?? Matrix4.zero();
 
   set value(Matrix4 newValue) =>
-      _state._txController.value = makeMatrixInSafeRange(newValue);
+      _state?._txController.value = makeMatrixInSafeRange(newValue);
 
   @override
   void addListener(ui.VoidCallback listener) =>
-      _state._txController.addListener(listener);
+      _state?._txController.addListener(listener);
 
   @override
   void removeListener(ui.VoidCallback listener) =>
-      _state._txController.removeListener(listener);
+      _state?._txController.removeListener(listener);
 
   /// Restrict matrix to the safe range.
   Matrix4 makeMatrixInSafeRange(Matrix4 newValue) =>
-      _state._makeMatrixInSafeRange(newValue);
+      _state!._makeMatrixInSafeRange(newValue);
 
   double getNextZoom({bool loop = true}) =>
-      _state._findNextZoomStop(currentZoom, zoomUp: true, loop: loop);
+      _state!._findNextZoomStop(currentZoom, zoomUp: true, loop: loop);
 
   double getPreviousZoom({bool loop = true}) =>
-      _state._findNextZoomStop(currentZoom, zoomUp: false, loop: loop);
+      _state!._findNextZoomStop(currentZoom, zoomUp: false, loop: loop);
 
   void notifyFirstChange(void Function() onFirstChange) {
     void handler() {
@@ -1358,7 +1361,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
   }
 
   /// Forcibly relayout the pages.
-  void relayout() => _state._relayout();
+  void relayout() => _state?._relayout();
 
   /// Go to the specified area.
   ///
@@ -1368,7 +1371,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     PdfPageAnchor? anchor,
     Duration duration = const Duration(milliseconds: 200),
   }) =>
-      _state._goToArea(rect: rect, anchor: anchor, duration: duration);
+      _state!._goToArea(rect: rect, anchor: anchor, duration: duration);
 
   /// Go to the specified page.
   ///
@@ -1378,7 +1381,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     PdfPageAnchor? anchor,
     Duration duration = const Duration(milliseconds: 200),
   }) =>
-      _state._goToPage(
+      _state!._goToPage(
           pageNumber: pageNumber, anchor: anchor, duration: duration);
 
   /// Go to the specified area inside the page.
@@ -1392,7 +1395,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     PdfPageAnchor? anchor,
     Duration duration = const Duration(milliseconds: 200),
   }) =>
-      _state._goToRectInsidePage(
+      _state!._goToRectInsidePage(
         pageNumber: pageNumber,
         rect: rect,
         anchor: anchor,
@@ -1407,7 +1410,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     required int pageNumber,
     required PdfRect rect,
   }) =>
-      _state._calcRectForRectInsidePage(
+      _state!._calcRectForRectInsidePage(
         pageNumber: pageNumber,
         rect: rect,
       );
@@ -1422,7 +1425,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     required PdfRect rect,
     PdfPageAnchor? anchor,
   }) =>
-      _state._calcMatrixForRectInsidePage(
+      _state!._calcMatrixForRectInsidePage(
         pageNumber: pageNumber,
         rect: rect,
         anchor: anchor,
@@ -1436,12 +1439,12 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     PdfDest? dest, {
     Duration duration = const Duration(milliseconds: 200),
   }) =>
-      _state._goToDest(dest, duration: duration);
+      _state!._goToDest(dest, duration: duration);
 
   /// Calculate the matrix for the specified destination.
   ///
   /// [dest] specifies the destination.
-  Matrix4? calcMatrixForDest(PdfDest? dest) => _state._calcMatrixForDest(dest);
+  Matrix4? calcMatrixForDest(PdfDest? dest) => _state!._calcMatrixForDest(dest);
 
   /// Calculate the matrix for the page.
   ///
@@ -1451,7 +1454,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     required int pageNumber,
     PdfPageAnchor? anchor,
   }) =>
-      _state._calcMatrixForPage(pageNumber: pageNumber, anchor: anchor);
+      _state!._calcMatrixForPage(pageNumber: pageNumber, anchor: anchor);
 
   /// Calculate the matrix for the specified area.
   ///
@@ -1461,7 +1464,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     required Rect rect,
     PdfPageAnchor? anchor,
   }) =>
-      _state._calcMatrixForArea(rect: rect, anchor: anchor);
+      _state!._calcMatrixForArea(rect: rect, anchor: anchor);
 
   /// Go to the specified position by the matrix.
   ///
@@ -1484,7 +1487,7 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     Matrix4? destination, {
     Duration duration = const Duration(milliseconds: 200),
   }) =>
-      _state._goTo(destination, duration: duration);
+      _state!._goTo(destination, duration: duration);
 
   /// Ensure the specified area is visible inside the view port.
   ///
@@ -1495,15 +1498,15 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     Duration duration = const Duration(milliseconds: 200),
     double margin = 0,
   }) =>
-      _state._ensureVisible(rect, duration: duration, margin: margin);
+      _state!._ensureVisible(rect, duration: duration, margin: margin);
 
   Matrix4 calcMatrixFor(Offset position, {double? zoom}) =>
-      _state._calcMatrixFor(position, zoom: zoom ?? currentZoom);
+      _state!._calcMatrixFor(position, zoom: zoom ?? currentZoom);
 
-  Offset get centerPosition => value.calcPosition(viewSize);
+  Offset get centerPosition => value.calcPosition(viewSize!);
 
   Matrix4 calcMatrixForRect(Rect rect, {double? zoomMax, double? margin}) =>
-      _state._calcMatrixForRect(rect, zoomMax: zoomMax, margin: margin);
+      _state!._calcMatrixForRect(rect, zoomMax: zoomMax, margin: margin);
 
   double get currentZoom => value.zoom;
 
@@ -1511,43 +1514,43 @@ class PdfViewerController extends ValueListenable<Matrix4> {
     Offset position,
     double zoom,
   ) =>
-      _state._setZoom(position, zoom);
+      _state!._setZoom(position, zoom);
 
   Future<void> zoomUp({
     bool loop = false,
     Offset? zoomCenter,
   }) =>
-      _state._zoomUp(loop: loop, zoomCenter: zoomCenter);
+      _state!._zoomUp(loop: loop, zoomCenter: zoomCenter);
 
   Future<void> zoomDown({
     bool loop = false,
     Offset? zoomCenter,
   }) =>
-      _state._zoomDown(loop: loop, zoomCenter: zoomCenter);
+      _state!._zoomDown(loop: loop, zoomCenter: zoomCenter);
 
-  RenderBox? get renderBox => _state._renderBox;
+  RenderBox? get renderBox => _state!._renderBox;
 
   /// Converts the global position to the local position in the widget.
-  Offset? globalToLocal(Offset global) => _state._globalToLocal(global);
+  Offset? globalToLocal(Offset global) => _state!._globalToLocal(global);
 
   /// Converts the local position to the global position in the widget.
-  Offset? localToGlobal(Offset local) => _state._localToGlobal(local);
+  Offset? localToGlobal(Offset local) => _state!._localToGlobal(local);
 
   /// Converts the global position to the local position in the PDF document structure.
-  Offset? globalToDocument(Offset global) => _state._globalToDocument(global);
+  Offset? globalToDocument(Offset global) => _state!._globalToDocument(global);
 
   /// Converts the local position in the PDF document structure to the global position.
   Offset? documentToGlobal(Offset document) =>
-      _state._documentToGlobal(document);
+      _state!._documentToGlobal(document);
 
   /// Provided to workaround certain widgets eating wheel events. Use with [Listener.onPointerSignal].
   void handlePointerSignalEvent(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
-      _state._onWheelDelta(event.scrollDelta);
+      _state!._onWheelDelta(event.scrollDelta);
     }
   }
 
-  void invalidate() => _state._invalidate();
+  void invalidate() => _state!._invalidate();
 }
 
 extension PdfMatrix4Ext on Matrix4 {
